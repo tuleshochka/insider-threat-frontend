@@ -51,17 +51,7 @@ export interface DashboardOut {
   max_score: number;
 }
 
-export interface TrainResponse {
-  task_id: string;
-  message: string;
-}
 
-export interface TrainStatus {
-  task_id: string;
-  status: string;
-  progress: number;
-  message: string;
-}
 
 export interface ActorContextOut {
   name: string;
@@ -112,22 +102,18 @@ export interface SystemSettingOut {
   updated_at: string | null;
 }
 
-export interface DatasetReleaseOut {
-  id: string;
-  path: string;
-  recommended: boolean;
-  purpose: string;
-  schema_notes: string[];
+
+
+export interface SystemUserOut {
+  id: number;
+  username: string;
+  role: "admin" | "specialist" | "observer";
+  is_active: boolean;
+  created_at: string;
 }
 
-export interface TrainingPlanOut {
-  execution_target: string;
-  baseline_release: string;
-  recommended_releases: string[];
-  excluded_by_default: string[];
-  storage_format: string;
-  feature_grain: string;
-  required_artifacts: string[];
-  validation_strategy: string[];
-  releases: DatasetReleaseOut[];
+export interface Token {
+  access_token: string;
+  token_type: string;
 }
+

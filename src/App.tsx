@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ConfigProvider, theme } from "antd";
 import AppLayout from "./pages/Layout";
 import Dashboard from "./pages/Dashboard";
@@ -8,7 +8,39 @@ import Anomalies from "./pages/Anomalies";
 import AnomalyDetail from "./pages/AnomalyDetail";
 import Incidents from "./pages/Incidents";
 import CorporateAdmin from "./pages/CorporateAdmin";
-import TrainingPlan from "./pages/TrainingPlan";
+import ExportData from "./pages/ExportData";
+import Login from "./pages/Login";
+import SystemUsers from "./pages/SystemUsers";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { token, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          background: "#0a0a0f",
+          color: "#7b61ff",
+          fontSize: 18,
+          fontWeight: 500,
+        }}
+      >
+        Загрузка...
+      </div>
+    );
+  }
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
 
 export default function App() {
   return (
@@ -29,20 +61,32 @@ export default function App() {
         }
       }}
     >
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/users" element={<Users />} />
-            <Route path="/users/:id" element={<UserDetail />} />
-            <Route path="/anomalies" element={<Anomalies />} />
-            <Route path="/anomalies/:id" element={<AnomalyDetail />} />
-            <Route path="/incidents" element={<Incidents />} />
-            <Route path="/training-plan" element={<TrainingPlan />} />
-            <Route path="/corporate" element={<CorporateAdmin />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/users/:id" element={<UserDetail />} />
+              <Route path="/anomalies" element={<Anomalies />} />
+              <Route path="/anomalies/:id" element={<AnomalyDetail />} />
+              <Route path="/incidents" element={<Incidents />} />
+              <Route path="/export" element={<ExportData />} />
+              <Route path="/corporate" element={<CorporateAdmin />} />
+              <Route path="/system-users" element={<SystemUsers />} />
+            </Route>
+            {/* Fallback to dashboard */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ConfigProvider>
   );
 }

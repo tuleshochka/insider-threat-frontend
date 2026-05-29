@@ -10,9 +10,8 @@ import type {
   IncidentCreate,
   IncidentOut,
   SystemSettingOut,
-  TrainingPlanOut,
-  TrainResponse,
-  TrainStatus,
+  SystemUserOut,
+  Token,
 } from "../types/api";
 
 const api = axios.create({
@@ -21,10 +20,10 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const role = localStorage.getItem("ueba_actor_role") || "security_specialist";
-  const name = localStorage.getItem("ueba_actor_name") || "demo.specialist";
-  config.headers.set("X-Actor-Role", role);
-  config.headers.set("X-Actor-Name", name);
+  const token = localStorage.getItem("ueba_jwt_token");
+  if (token) {
+    config.headers.set("Authorization", `Bearer ${token}`);
+  }
   return config;
 });
 
@@ -73,15 +72,6 @@ export async function fetchDashboard(): Promise<DashboardOut> {
   return r.data;
 }
 
-export async function triggerTraining(): Promise<TrainResponse> {
-  const r = await api.post("/train");
-  return r.data;
-}
-
-export async function fetchTrainingStatus(taskId: string): Promise<TrainStatus> {
-  const r = await api.get(`/train/${taskId}`);
-  return r.data;
-}
 
 export async function fetchActor(): Promise<ActorContextOut> {
   const r = await api.get("/corporate/me");
@@ -132,7 +122,38 @@ export async function updateSetting(
   return r.data;
 }
 
-export async function fetchTrainingPlan(): Promise<TrainingPlanOut> {
-  const r = await api.get("/training/plan");
+
+export async function loginUser(username: string, password: string): Promise<Token> {
+  const params = new URLSearchParams();
+  params.append("username", username);
+  params.append("password", password);
+  
+  const r = await api.post("/auth/login", params, {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
   return r.data;
 }
+
+export async function fetchMe(): Promise<SystemUserOut> {
+  const r = await api.get("/auth/me");
+  return r.data;
+}
+
+
+export async function fetchSystemUsers(): Promise<SystemUserOut[]> {
+  const r = await api.get("/system-users");
+  return r.data;
+}
+
+export async function createSystemUser(payload: { username: string; password: string; role: string }): Promise<SystemUserOut> {
+  const r = await api.post("/system-users", payload);
+  return r.data;
+}
+
+export async function updateSystemUserRole(id: number, role: "admin" | "specialist" | "observer"): Promise<SystemUserOut> {
+  const r = await api.patch(`/system-users/${id}/role`, { role });
+  return r.data;
+}
+

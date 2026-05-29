@@ -84,9 +84,6 @@ export default function UserDetail() {
             <Descriptions.Item label="Версия модели">
               {profile.model_version || "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="Обучен">
-              {profile.trained_at ? new Date(profile.trained_at).toLocaleString() : "-"}
-            </Descriptions.Item>
           </Descriptions>
         </Card>
       )}

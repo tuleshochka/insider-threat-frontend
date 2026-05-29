@@ -1,34 +1,53 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { Layout, Menu, Select, Space, Tag, Typography } from "antd";
+import { Layout, Menu, Space, Tag, Typography, Button } from "antd";
 import {
   DashboardOutlined,
-  ExperimentOutlined,
+  DownloadOutlined,
   SafetyCertificateOutlined,
   SettingOutlined,
   UserOutlined,
   WarningOutlined,
+  TeamOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
+import { useAuth } from "../contexts/AuthContext";
 
 const { Header, Sider, Content } = Layout;
-
-const menuItems = [
-  { key: "/", icon: <DashboardOutlined />, label: "Панель управления" },
-  { key: "/users", icon: <UserOutlined />, label: "Пользователи" },
-  { key: "/anomalies", icon: <WarningOutlined />, label: "Аномалии" },
-  { key: "/incidents", icon: <SafetyCertificateOutlined />, label: "Инциденты" },
-  { key: "/training-plan", icon: <ExperimentOutlined />, label: "Colab и датасеты" },
-  { key: "/corporate", icon: <SettingOutlined />, label: "Корп. режим" },
-];
 
 export default function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const role = localStorage.getItem("ueba_actor_role") || "security_specialist";
+  const { role, user, logout } = useAuth();
+
   const roleLabels: Record<string, string> = {
-    security_specialist: "Специалист ИБ",
-    lead: "Техлид",
+    admin: "Администратор",
+    specialist: "Специалист ИБ",
     observer: "Наблюдатель",
   };
+
+  const roleColors: Record<string, string> = {
+    admin: "magenta",
+    specialist: "purple",
+    observer: "blue",
+  };
+
+  const menuItems = [
+    { key: "/", icon: <DashboardOutlined />, label: "Панель управления" },
+    { key: "/users", icon: <UserOutlined />, label: "Пользователи" },
+    { key: "/anomalies", icon: <WarningOutlined />, label: "Аномалии" },
+    { key: "/incidents", icon: <SafetyCertificateOutlined />, label: "Инциденты" },
+    { key: "/export", icon: <DownloadOutlined />, label: "Выгрузка данных" },
+    { key: "/corporate", icon: <SettingOutlined />, label: "Корп. режим" },
+  ];
+
+  // Добавляем раздел управления пользователями только для администратора
+  if (role === "admin") {
+    menuItems.push({
+      key: "/system-users",
+      icon: <TeamOutlined />,
+      label: "Пользователи системы",
+    });
+  }
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -77,25 +96,23 @@ export default function AppLayout() {
           <Typography.Text style={{ color: "#fff", fontSize: 16 }}>
             Система мониторинга поведения пользователей
           </Typography.Text>
-          <Space>
-            <Tag color="blue">{roleLabels[role]}</Tag>
-            <Select
-              value={role}
-              style={{ width: 190 }}
-              onChange={(value) => {
-                localStorage.setItem("ueba_actor_role", value);
-                localStorage.setItem(
-                  "ueba_actor_name",
-                  value === "lead" ? "demo.lead" : value === "observer" ? "demo.audit" : "demo.specialist"
-                );
-                window.location.reload();
-              }}
-              options={[
-                { value: "security_specialist", label: "Специалист ИБ" },
-                { value: "lead", label: "Техлид" },
-                { value: "observer", label: "Наблюдатель" },
-              ]}
-            />
+          <Space size="middle">
+            <span style={{ color: "rgba(255, 255, 255, 0.85)", fontWeight: 500 }}>
+              {user?.username}
+            </span>
+            {role && (
+              <Tag color={roleColors[role] || "blue"}>
+                {roleLabels[role] || role}
+              </Tag>
+            )}
+            <Button
+              type="text"
+              icon={<LogoutOutlined style={{ color: "rgba(255,255,255,0.65)" }} />}
+              onClick={logout}
+              style={{ color: "rgba(255, 255, 255, 0.65)" }}
+            >
+              Выйти
+            </Button>
           </Space>
         </Header>
         <Content style={{ margin: 24 }}>

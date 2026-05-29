@@ -5,16 +5,12 @@ import {
   Row,
   Statistic,
   Spin,
-  Button,
-  message,
-  Progress,
 } from "antd";
 import {
   WarningOutlined,
   UserOutlined,
   CheckCircleOutlined,
   SafetyCertificateOutlined,
-  ThunderboltOutlined,
 } from "@ant-design/icons";
 import {
   BarChart,
@@ -27,16 +23,13 @@ import {
 } from "recharts";
 import {
   fetchDashboard,
-  triggerTraining,
-  fetchTrainingStatus,
 } from "../api/client";
 import type { DashboardOut } from "../types/api";
 
 export default function Dashboard() {
   const [dash, setDash] = useState<DashboardOut | null>(null);
   const [loading, setLoading] = useState(true);
-  const [training, setTraining] = useState(false);
-  const [taskId, setTaskId] = useState<string | null>(null);
+
 
   useEffect(() => {
     fetchDashboard()
@@ -44,26 +37,6 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (!taskId) return;
-    const interval = setInterval(async () => {
-      const s = await fetchTrainingStatus(taskId);
-      if (s.status === "done" || s.status === "failed") {
-        clearInterval(interval);
-        setTraining(false);
-        message.info(s.message);
-        fetchDashboard().then(setDash);
-      }
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [taskId]);
-
-  const handleTrain = async () => {
-    setTraining(true);
-    const r = await triggerTraining();
-    setTaskId(r.task_id);
-    message.loading({ content: "Обучение запущено...", key: "train" });
-  };
 
   if (loading) return <Spin size="large" style={{ display: "block", marginTop: 100 }} />;
   if (!dash) return null;
@@ -133,25 +106,8 @@ export default function Dashboard() {
           </Card>
         </Col>
         <Col span={12}>
-          <Card title="Управление моделью" className="glass-panel fade-in" style={{ animationDelay: '0.6s' }}>
-            <Button
-              type="primary"
-              icon={<ThunderboltOutlined />}
-              onClick={handleTrain}
-              loading={training}
-              size="large"
-              block
-            >
-              {training ? "Обучение..." : "Запустить обучение"}
-            </Button>
-            {training && (
-              <Progress
-                style={{ marginTop: 16 }}
-                percent={0}
-                status="active"
-              />
-            )}
-            <p style={{ marginTop: 16, color: "#888" }}>
+          <Card title="Общая статистика" className="glass-panel fade-in" style={{ animationDelay: '0.6s' }}>
+            <p style={{ marginTop: 0, color: "#888" }}>
               Максимальный уровень риска:{" "}
               <strong>{dash.max_score.toFixed(2)}</strong>
             </p>
