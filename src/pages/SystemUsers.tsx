@@ -37,8 +37,8 @@ export default function SystemUsers() {
     return (
       <div style={{ padding: 40, textAlign: "center" }}>
         <SafetyCertificateOutlined style={{ fontSize: 64, color: "#ff4d4f", marginBottom: 20 }} />
-        <Title level={3} style={{ color: "#fff" }}>Доступ ограничен</Title>
-        <Text style={{ color: "rgba(255,255,255,0.6)" }}>
+        <Title level={3}>Доступ ограничен</Title>
+        <Text type="secondary">
           Только администраторы могут просматривать и редактировать пользователей системы.
         </Text>
       </div>
@@ -76,7 +76,7 @@ export default function SystemUsers() {
       title: "Имя пользователя",
       dataIndex: "username",
       key: "username",
-      render: (text: string) => <strong style={{ color: "#fff" }}>{text}</strong>,
+      render: (text: string) => <strong>{text}</strong>,
     },
     {
       title: "Роль",
@@ -88,7 +88,6 @@ export default function SystemUsers() {
             value={val}
             onChange={(newRole) => handleRoleChange(record.id, newRole as "admin" | "specialist" | "observer")}
             style={{ width: 160 }}
-            dropdownStyle={{ background: "#1f1f2e" }}
           >
             <Select.Option value="admin">
               <Tag color="magenta">Администратор</Tag>
@@ -121,21 +120,14 @@ export default function SystemUsers() {
 
   return (
     <div style={{ padding: "24px" }}>
-      <Card
-        style={{
-          background: "rgba(10, 10, 15, 0.4)",
-          backdropFilter: "blur(16px)",
-          border: "1px solid rgba(255, 255, 255, 0.05)",
-          borderRadius: "12px",
-        }}
-      >
+      <Card className="glass-panel">
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24, alignItems: "center" }}>
           <div>
-            <Title level={2} style={{ color: "#fff", margin: 0 }}>
+            <Title level={2} style={{ margin: 0 }}>
               Пользователи системы
             </Title>
-            <Text style={{ color: "rgba(255,255,255,0.6)" }}>
-              Управление операторами системы UEBA Monitor и разграничением ролевого доступа.
+            <Text type="secondary">
+              Управление операторами системы мониторинга поведения пользователей и разграничением ролевого доступа.
             </Text>
           </div>
           <Button
@@ -165,7 +157,7 @@ export default function SystemUsers() {
         title={
           <Space>
             <KeyOutlined style={{ color: "#7b61ff" }} />
-            <span style={{ color: "#fff" }}>Новый оператор системы</span>
+            <span>Новый оператор системы</span>
           </Space>
         }
         open={isModalOpen}
@@ -183,7 +175,7 @@ export default function SystemUsers() {
         <Form form={form} layout="vertical" onFinish={handleCreate} style={{ marginTop: 20 }}>
           <Form.Item
             name="username"
-            label={<span style={{ color: "rgba(255,255,255,0.85)" }}>Имя пользователя</span>}
+            label="Имя пользователя"
             rules={[{ required: true, message: "Введите имя пользователя" }]}
           >
             <Input placeholder="Например, ivan_sec" />
@@ -191,7 +183,7 @@ export default function SystemUsers() {
 
           <Form.Item
             name="password"
-            label={<span style={{ color: "rgba(255,255,255,0.85)" }}>Пароль</span>}
+            label="Пароль"
             rules={[{ required: true, message: "Введите пароль" }]}
           >
             <Input.Password placeholder="Минимум 6 символов" />
@@ -199,7 +191,7 @@ export default function SystemUsers() {
 
           <Form.Item
             name="role"
-            label={<span style={{ color: "rgba(255,255,255,0.85)" }}>Роль</span>}
+            label="Роль"
             initialValue="observer"
             rules={[{ required: true, message: "Выберите роль" }]}
           >

@@ -33,24 +33,24 @@ export default function Login() {
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
-        background: "radial-gradient(circle at center, #1b1236 0%, #0a0a0f 100%)",
+        background: "radial-gradient(circle at center, #f4f6fa 0%, #e4e7eb 100%)",
       }}
     >
       <Card
         style={{
           width: 420,
-          background: "rgba(15, 15, 25, 0.7)",
+          background: "rgba(255, 255, 255, 0.85)",
           backdropFilter: "blur(20px)",
-          border: "1px solid rgba(123, 97, 255, 0.2)",
-          boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.5), 0 0 15px rgba(123, 97, 255, 0.1)",
+          border: "1px solid rgba(123, 97, 255, 0.15)",
+          boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.06), 0 0 15px rgba(123, 97, 255, 0.05)",
           borderRadius: 16,
         }}
       >
         <div style={{ textAlign: "center", marginBottom: 30 }}>
-          <Title level={2} style={{ color: "#fff", marginBottom: 5, fontFamily: "Outfit, Inter" }}>
-            UEBA Monitor
+          <Title level={2} style={{ color: "#111", marginBottom: 5, fontFamily: "Outfit, Inter" }}>
+            Система мониторинга поведения пользователей
           </Title>
-          <Text style={{ color: "rgba(255, 255, 255, 0.55)" }}>
+          <Text style={{ color: "rgba(0, 0, 0, 0.55)" }}>
             Вход в систему контроля инсайдерских угроз
           </Text>
         </div>
@@ -61,13 +61,8 @@ export default function Login() {
             rules={[{ required: true, message: "Пожалуйста, введите имя пользователя!" }]}
           >
             <Input
-              prefix={<UserOutlined style={{ color: "rgba(255, 255, 255, 0.3)" }} />}
+              prefix={<UserOutlined style={{ color: "rgba(0, 0, 0, 0.35)" }} />}
               placeholder="Имя пользователя"
-              style={{
-                background: "rgba(0,0,0,0.2)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "#fff",
-              }}
             />
           </Form.Item>
 
@@ -76,13 +71,8 @@ export default function Login() {
             rules={[{ required: true, message: "Пожалуйста, введите пароль!" }]}
           >
             <Input.Password
-              prefix={<LockOutlined style={{ color: "rgba(255, 255, 255, 0.3)" }} />}
+              prefix={<LockOutlined style={{ color: "rgba(0, 0, 0, 0.35)" }} />}
               placeholder="Пароль"
-              style={{
-                background: "rgba(0,0,0,0.2)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "#fff",
-              }}
             />
           </Form.Item>
 
@@ -98,7 +88,7 @@ export default function Login() {
                 fontWeight: 600,
                 height: 45,
                 borderRadius: 8,
-                boxShadow: "0 4px 15px rgba(123, 97, 255, 0.3)",
+                boxShadow: "0 4px 15px rgba(123, 97, 255, 0.2)",
               }}
             >
               Войти

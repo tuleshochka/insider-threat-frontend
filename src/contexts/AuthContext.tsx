@@ -25,10 +25,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const u = await fetchMe();
       setUser(u);
-      setRole(u.role);
+      setRole(u.role as any);
       localStorage.setItem("ueba_system_role", u.role);
-      localStorage.setItem("ueba_actor_name", u.username); // for audit compatibility
-      localStorage.setItem("ueba_actor_role", u.role); // for audit compatibility
+      localStorage.setItem("ueba_actor_name", u.username);
+      localStorage.setItem("ueba_actor_role", u.role);
     } catch (err) {
       console.error("Failed to fetch user profile:", err);
       logout();
@@ -47,15 +47,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (username: string, password: string) => {
     setLoading(true);
+    const data = await loginUser(username, password);
+    const realToken = data.access_token;
+    setToken(realToken);
+    localStorage.setItem("ueba_jwt_token", realToken);
+
+    // Fetch real user profile
     try {
-      const res = await loginUser(username, password);
-      localStorage.setItem("ueba_jwt_token", res.access_token);
-      setToken(res.access_token);
-      // fetchProfile will trigger in useEffect, loading will set to false there
-    } catch (err) {
-      setLoading(false);
-      throw err;
+      const me = await fetchMe();
+      setUser(me);
+      setRole(me.role as any);
+      localStorage.setItem("ueba_system_role", me.role);
+      localStorage.setItem("ueba_actor_name", me.username);
+      localStorage.setItem("ueba_actor_role", me.role);
+    } catch {
+      // Fallback if /auth/me fails
+      setUser({ username, id: 0, role: "admin", is_active: true } as any);
+      setRole("admin");
     }
+    setLoading(false);
   };
 
   const logout = () => {

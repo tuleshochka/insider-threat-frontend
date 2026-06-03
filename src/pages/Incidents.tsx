@@ -1,116 +1,142 @@
 import { useEffect, useState } from "react";
 import { Button, Select, Space, Table, Tag, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { ExportOutlined } from "@ant-design/icons";
-import { exportIncident, fetchIncidents, updateIncidentStatus } from "../api/client";
-import type { IncidentOut } from "../types/api";
-
-type IncidentStatus = "open" | "in_progress" | "resolved" | "closed";
-
-const severityColors: Record<string, string> = {
-  low: "green",
-  medium: "gold",
-  high: "orange",
-  critical: "red",
-};
+import { DownloadOutlined } from "@ant-design/icons";
+import { fetchAnomalies, reviewAnomaly } from "../api/client";
+import type { AnomalyOut } from "../types/api";
+import { useAuth } from "../contexts/AuthContext";
+import { Link } from "react-router-dom";
 
 export default function Incidents() {
-  const [data, setData] = useState<IncidentOut[]>([]);
+  const [data, setData] = useState<AnomalyOut[]>([]);
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
-  const role = localStorage.getItem("ueba_actor_role") || "security_specialist";
-  const canManage = role === "lead";
+  const [exportLoading, setExportLoading] = useState(false);
+  const { role, token } = useAuth();
+  const canManage = role === "admin" || role === "specialist";
 
   const load = () => {
     setLoading(true);
-    fetchIncidents(statusFilter)
+    fetchAnomalies(statusFilter)
       .then(setData)
       .finally(() => setLoading(false));
   };
 
   useEffect(load, [statusFilter]);
 
-  const columns: ColumnsType<IncidentOut> = [
+  const handleExportCSV = async () => {
+    setExportLoading(true);
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+      const response = await fetch(`${API_URL}/export/csv`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("Ошибка при скачивании файла");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = "labeled_anomalies_export.csv";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      message.success("Данные успешно выгружены!");
+    } catch (error) {
+      console.error(error);
+      message.error("Не удалось выгрузить данные.");
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
+  const columns: ColumnsType<AnomalyOut> = [
     { title: "ID", dataIndex: "id", key: "id", width: 70 },
-    { title: "Название", dataIndex: "title", key: "title" },
     {
-      title: "Критичность",
-      dataIndex: "severity",
-      key: "severity",
-      render: (v: string) => <Tag color={severityColors[v]}>{v}</Tag>,
+      title: "Пользователь",
+      key: "user_id",
+      render: (_, row: any) => <Link to={`/users/${row.user_id}`}>{row.user_anon_id || `#${row.user_id}`}</Link>,
+    },
+    {
+      title: "Уровень риска",
+      dataIndex: "score",
+      key: "score",
+      render: (v: number) => {
+        const color = v > 0.8 ? "red" : v > 0.5 ? "orange" : "green";
+        return <Tag color={color}>{v.toFixed(1)}</Tag>;
+      },
+    },
+    {
+      title: "Детали",
+      key: "details",
+      render: (_, row) => <Link to={`/anomalies/${row.id}`}>SHAP Анализ</Link>,
     },
     {
       title: "Статус",
       dataIndex: "status",
       key: "status",
-      render: (v: string, row) => (
+          render: (v: string, row) => (
         <Select
-          value={v as IncidentStatus}
-          style={{ width: 150 }}
+          value={v as "confirmed" | "rejected"}
+          style={{ width: 170 }}
           disabled={!canManage}
           onClick={(e) => e.stopPropagation()}
-          onChange={async (status: IncidentStatus) => {
-            await updateIncidentStatus(row.id, status);
-            message.success("Статус инцидента обновлён");
+          onChange={async (newStatus: "confirmed" | "rejected") => {
+            await reviewAnomaly(row.id, newStatus, "Изменено со страницы событий");
+            message.success("Статус обновлён");
             load();
           }}
           options={[
-            { value: "open", label: "Открыт" },
-            { value: "in_progress", label: "В работе" },
-            { value: "resolved", label: "Решён" },
-            { value: "closed", label: "Закрыт" },
+            { value: "pending", label: "Ожидает проверки", disabled: true },
+            { value: "confirmed", label: "Подтвержден (Инцидент)" },
+            { value: "rejected", label: "Отклонен" },
           ]}
         />
       ),
     },
-    { title: "Ответственный", dataIndex: "assignee", key: "assignee", render: (v) => v || "-" },
     {
-      title: "Экспорт",
-      dataIndex: "exported",
-      key: "exported",
-      render: (v: boolean, row) =>
-        v ? (
-          <Tag color="green">Экспортирован</Tag>
-        ) : (
-          <Button
-            icon={<ExportOutlined />}
-            disabled={!canManage}
-            onClick={async () => {
-              await exportIncident(row.id);
-              message.success("Инцидент помечен как экспортированный");
-              load();
-            }}
-          >
-            Экспорт
-          </Button>
-        ),
-    },
-    {
-      title: "Создан",
-      dataIndex: "created_at",
-      key: "created_at",
+      title: "Дата",
+      dataIndex: "detected_at",
+      key: "detected_at",
       render: (v: string) => new Date(v).toLocaleString(),
     },
   ];
 
   return (
     <div>
-      <Space style={{ marginBottom: 16 }}>
-        <span>Статус:</span>
-        <Select
-          allowClear
-          placeholder="Все"
-          style={{ width: 170 }}
-          value={statusFilter}
-          onChange={setStatusFilter}
-          options={[
-            { value: "open", label: "Открыт" },
-            { value: "in_progress", label: "В работе" },
-            { value: "resolved", label: "Решён" },
-            { value: "closed", label: "Закрыт" },
-          ]}
-        />
-      </Space>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+        <Space>
+          <span>Статус:</span>
+          <Select
+            allowClear
+            placeholder="Все"
+            style={{ width: 200 }}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[
+              { value: "pending", label: "Ожидает проверки" },
+              { value: "confirmed", label: "Подтвержден (Инциденты)" },
+              { value: "rejected", label: "Отклонен" },
+            ]}
+          />
+        </Space>
+        <Button
+          type="primary"
+          icon={<DownloadOutlined />}
+          onClick={handleExportCSV}
+          loading={exportLoading}
+        >
+          Выгрузить датасет (CSV)
+        </Button>
+      </div>
       <Table
         columns={columns}
         dataSource={data}
@@ -121,3 +147,4 @@ export default function Incidents() {
     </div>
   );
 }
+

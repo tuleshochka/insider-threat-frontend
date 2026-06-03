@@ -22,6 +22,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 import { createIncident, fetchAnomaly, reviewAnomaly } from "../api/client";
 import type { AnomalyOut, FeatureOut } from "../types/api";
@@ -110,7 +111,7 @@ export default function AnomalyDetail() {
 
       <Card title={`Аномалия #${anomaly.id}`} style={{ marginBottom: 16 }}>
         <Descriptions column={2}>
-          <Descriptions.Item label="Пользователь">{anomaly.user_id}</Descriptions.Item>
+          <Descriptions.Item label="Пользователь">{(anomaly as any).user_anon_id || anomaly.user_id}</Descriptions.Item>
           <Descriptions.Item label="Оценка">
             <Tag color={anomaly.score > 10 ? "red" : "gold"}>
               {anomaly.score.toFixed(2)}
@@ -167,7 +168,11 @@ export default function AnomalyDetail() {
             <XAxis type="number" />
             <YAxis type="category" dataKey="name" width={180} />
             <Tooltip />
-            <Bar dataKey="value" fill="#1677ff" />
+            <Bar dataKey="value" minPointSize={2}>
+              {chartData.map((entry, idx) => (
+                <Cell key={idx} fill={entry.value >= 0 ? "#ff4d4f" : "#52c41a"} fillOpacity={0.85} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </Card>

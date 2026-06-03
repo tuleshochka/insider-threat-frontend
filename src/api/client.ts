@@ -28,7 +28,7 @@ api.interceptors.request.use((config) => {
 });
 
 export async function fetchUsers(page: number, size: number): Promise<UserListResponse> {
-  const r = await api.get("/users/", { params: { page, size } });
+  const r = await api.get("/users", { params: { page, size } });
   return r.data;
 }
 

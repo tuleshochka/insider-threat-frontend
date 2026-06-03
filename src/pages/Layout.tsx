@@ -2,11 +2,9 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Layout, Menu, Space, Tag, Typography, Button } from "antd";
 import {
   DashboardOutlined,
-  DownloadOutlined,
   SafetyCertificateOutlined,
   SettingOutlined,
   UserOutlined,
-  WarningOutlined,
   TeamOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
@@ -34,10 +32,8 @@ export default function AppLayout() {
   const menuItems = [
     { key: "/", icon: <DashboardOutlined />, label: "Панель управления" },
     { key: "/users", icon: <UserOutlined />, label: "Пользователи" },
-    { key: "/anomalies", icon: <WarningOutlined />, label: "Аномалии" },
-    { key: "/incidents", icon: <SafetyCertificateOutlined />, label: "Инциденты" },
-    { key: "/export", icon: <DownloadOutlined />, label: "Выгрузка данных" },
-    { key: "/corporate", icon: <SettingOutlined />, label: "Корп. режим" },
+    { key: "/incidents", icon: <SafetyCertificateOutlined />, label: "События ИБ" },
+    { key: "/corporate", icon: <SettingOutlined />, label: "Настройки" },
   ];
 
   // Добавляем раздел управления пользователями только для администратора
@@ -54,9 +50,9 @@ export default function AppLayout() {
       <Sider 
         collapsible 
         style={{ 
-          background: "rgba(10, 10, 15, 0.4)", 
+          background: "rgba(255, 255, 255, 0.75)", 
           backdropFilter: "blur(16px)",
-          borderRight: "1px solid rgba(255, 255, 255, 0.05)"
+          borderRight: "1px solid rgba(0, 0, 0, 0.06)"
         }}
       >
         <div
@@ -65,15 +61,15 @@ export default function AppLayout() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            borderBottom: "1px solid rgba(255,255,255,0.05)"
+            borderBottom: "1px solid rgba(0, 0, 0, 0.06)"
           }}
         >
-          <Typography.Title level={4} style={{ color: "#fff", margin: 0 }}>
-            UEBA Monitor
-          </Typography.Title>
+          <div style={{ fontSize: 15, fontWeight: 600, color: "#111", lineHeight: 1.3, textAlign: "center", wordBreak: "break-word", padding: "0 8px" }}>
+            Система мониторинга поведения пользователей
+          </div>
         </div>
         <Menu
-          theme="dark"
+          theme="light"
           mode="inline"
           style={{ background: "transparent", borderRight: 0 }}
           selectedKeys={[location.pathname]}
@@ -85,19 +81,19 @@ export default function AppLayout() {
         <Header
           style={{
             padding: "0 24px",
-            background: "rgba(10, 10, 15, 0.6)",
+            background: "rgba(255, 255, 255, 0.8)",
             backdropFilter: "blur(16px)",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            borderBottom: "1px solid rgba(0, 0, 0, 0.06)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between"
           }}
         >
-          <Typography.Text style={{ color: "#fff", fontSize: 16 }}>
+          <Typography.Text style={{ color: "#111", fontSize: 16 }}>
             Система мониторинга поведения пользователей
           </Typography.Text>
           <Space size="middle">
-            <span style={{ color: "rgba(255, 255, 255, 0.85)", fontWeight: 500 }}>
+            <span style={{ color: "rgba(0, 0, 0, 0.85)", fontWeight: 500 }}>
               {user?.username}
             </span>
             {role && (
@@ -107,9 +103,9 @@ export default function AppLayout() {
             )}
             <Button
               type="text"
-              icon={<LogoutOutlined style={{ color: "rgba(255,255,255,0.65)" }} />}
+              icon={<LogoutOutlined style={{ color: "rgba(0,0,0,0.65)" }} />}
               onClick={logout}
-              style={{ color: "rgba(255, 255, 255, 0.65)" }}
+              style={{ color: "rgba(0, 0, 0, 0.65)" }}
             >
               Выйти
             </Button>
