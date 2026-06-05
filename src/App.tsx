@@ -40,6 +40,35 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function RoleProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
+  const { role, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          background: "#f4f6fa",
+          color: "#7b61ff",
+          fontSize: 18,
+          fontWeight: 500,
+        }}
+      >
+        Загрузка...
+      </div>
+    );
+  }
+
+  if (!role || !allowedRoles.includes(role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
+}
+
 export default function App() {
   return (
     <ConfigProvider
@@ -75,8 +104,22 @@ export default function App() {
               <Route path="/users/:id" element={<UserDetail />} />
               <Route path="/anomalies/:id" element={<AnomalyDetail />} />
               <Route path="/incidents" element={<Incidents />} />
-              <Route path="/corporate" element={<CorporateAdmin />} />
-              <Route path="/system-users" element={<SystemUsers />} />
+              <Route
+                path="/corporate"
+                element={
+                  <RoleProtectedRoute allowedRoles={["admin"]}>
+                    <CorporateAdmin />
+                  </RoleProtectedRoute>
+                }
+              />
+              <Route
+                path="/system-users"
+                element={
+                  <RoleProtectedRoute allowedRoles={["admin"]}>
+                    <SystemUsers />
+                  </RoleProtectedRoute>
+                }
+              />
             </Route>
             {/* Fallback to dashboard */}
             <Route path="*" element={<Navigate to="/" replace />} />

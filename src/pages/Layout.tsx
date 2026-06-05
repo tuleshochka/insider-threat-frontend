@@ -20,24 +20,24 @@ export default function AppLayout() {
   const roleLabels: Record<string, string> = {
     admin: "Администратор",
     specialist: "Специалист ИБ",
-    observer: "Наблюдатель",
+    auditor_ai: "Аудитор ИИ",
   };
 
   const roleColors: Record<string, string> = {
     admin: "magenta",
     specialist: "purple",
-    observer: "blue",
+    auditor_ai: "cyan",
   };
 
   const menuItems = [
     { key: "/", icon: <DashboardOutlined />, label: "Панель управления" },
     { key: "/users", icon: <UserOutlined />, label: "Пользователи" },
     { key: "/incidents", icon: <SafetyCertificateOutlined />, label: "События ИБ" },
-    { key: "/corporate", icon: <SettingOutlined />, label: "Настройки" },
   ];
 
-  // Добавляем раздел управления пользователями только для администратора
+  // Добавляем разделы настроек и пользователей системы только для администратора
   if (role === "admin") {
+    menuItems.push({ key: "/corporate", icon: <SettingOutlined />, label: "Настройки" });
     menuItems.push({
       key: "/system-users",
       icon: <TeamOutlined />,

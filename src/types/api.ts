@@ -107,7 +107,7 @@ export interface SystemSettingOut {
 export interface SystemUserOut {
   id: number;
   username: string;
-  role: "admin" | "specialist" | "observer";
+  role: "admin" | "specialist" | "auditor_ai";
   is_active: boolean;
   created_at: string;
 }

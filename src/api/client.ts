@@ -152,7 +152,7 @@ export async function createSystemUser(payload: { username: string; password: st
   return r.data;
 }
 
-export async function updateSystemUserRole(id: number, role: "admin" | "specialist" | "observer"): Promise<SystemUserOut> {
+export async function updateSystemUserRole(id: number, role: "admin" | "specialist" | "auditor_ai"): Promise<SystemUserOut> {
   const r = await api.patch(`/system-users/${id}/role`, { role });
   return r.data;
 }

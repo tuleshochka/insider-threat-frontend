@@ -26,6 +26,7 @@ import {
 } from "recharts";
 import { createIncident, fetchAnomaly, reviewAnomaly } from "../api/client";
 import type { AnomalyOut, FeatureOut } from "../types/api";
+import { useAuth } from "../contexts/AuthContext";
 
 const statusColors: Record<string, string> = {
   pending: "gold",
@@ -60,8 +61,8 @@ export default function AnomalyDetail() {
   const [loading, setLoading] = useState(true);
   const [reviewComment, setReviewComment] = useState("");
   const [incidentOpen, setIncidentOpen] = useState(false);
-  const role = localStorage.getItem("ueba_actor_role") || "security_specialist";
-  const canReview = role === "security_specialist" || role === "lead";
+  const { role } = useAuth();
+  const canReview = role === "admin" || role === "specialist";
 
   const load = () => {
     if (!id) return;

@@ -5,7 +5,7 @@ import type { SystemUserOut } from "../types/api";
 interface AuthContextType {
   token: string | null;
   user: SystemUserOut | null;
-  role: "admin" | "specialist" | "observer" | null;
+  role: "admin" | "specialist" | "auditor_ai" | null;
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => void;
@@ -16,7 +16,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem("ueba_jwt_token"));
   const [user, setUser] = useState<SystemUserOut | null>(null);
-  const [role, setRole] = useState<"admin" | "specialist" | "observer" | null>(
+  const [role, setRole] = useState<"admin" | "specialist" | "auditor_ai" | null>(
     (localStorage.getItem("ueba_system_role") as any) || null
   );
   const [loading, setLoading] = useState(true);
@@ -60,10 +60,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem("ueba_system_role", me.role);
       localStorage.setItem("ueba_actor_name", me.username);
       localStorage.setItem("ueba_actor_role", me.role);
-    } catch {
-      // Fallback if /auth/me fails
-      setUser({ username, id: 0, role: "admin", is_active: true } as any);
-      setRole("admin");
+    } catch (err) {
+      logout();
+      throw err;
     }
     setLoading(false);
   };

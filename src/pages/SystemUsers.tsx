@@ -59,7 +59,7 @@ export default function SystemUsers() {
     }
   };
 
-  const handleRoleChange = async (userId: number, newRole: "admin" | "specialist" | "observer") => {
+  const handleRoleChange = async (userId: number, newRole: "admin" | "specialist" | "auditor_ai") => {
     try {
       await updateSystemUserRole(userId, newRole);
       message.success("Роль пользователя успешно изменена");
@@ -86,7 +86,7 @@ export default function SystemUsers() {
         return (
           <Select
             value={val}
-            onChange={(newRole) => handleRoleChange(record.id, newRole as "admin" | "specialist" | "observer")}
+            onChange={(newRole) => handleRoleChange(record.id, newRole as "admin" | "specialist" | "auditor_ai")}
             style={{ width: 160 }}
           >
             <Select.Option value="admin">
@@ -95,7 +95,7 @@ export default function SystemUsers() {
             <Select.Option value="specialist">
               <Tag color="purple">Специалист ИБ</Tag>
             </Select.Option>
-            <Select.Option value="observer">
+            <Select.Option value="auditor_ai">
               <Tag color="blue">Наблюдатель</Tag>
             </Select.Option>
           </Select>
@@ -192,13 +192,13 @@ export default function SystemUsers() {
           <Form.Item
             name="role"
             label="Роль"
-            initialValue="observer"
+            initialValue="auditor_ai"
             rules={[{ required: true, message: "Выберите роль" }]}
           >
             <Select>
               <Select.Option value="admin">Администратор</Select.Option>
               <Select.Option value="specialist">Специалист ИБ</Select.Option>
-              <Select.Option value="observer">Наблюдатель</Select.Option>
+              <Select.Option value="auditor_ai">Наблюдатель</Select.Option>
             </Select>
           </Form.Item>
         </Form>
